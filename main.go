@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"indexer/contracts"
 	indexer "indexer/indexer"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+	start := time.Now()
+
 	pool4Address := common.HexToAddress("0x9F0a572be1Fcfe96E94C0a730C5F4bc2993fe3F6")
 
 	client, err := ethclient.Dial("https://node.koyo.finance/rpc")
@@ -44,18 +47,15 @@ func main() {
 
 	blocks := generators.GenBlockRange(629170, 632161)
 
-	c1 := indexer.SwapTokenExchange(new_swap, blocks)
-	c2 := indexer.SwapTokenExchange(new_swap, blocks)
-	c3 := indexer.SwapTokenExchange(new_swap, blocks)
-	c4 := indexer.SwapTokenExchange(new_swap, blocks)
-	c5 := indexer.SwapTokenExchange(new_swap, blocks)
-	c6 := indexer.SwapTokenExchange(new_swap, blocks)
-	c7 := indexer.SwapTokenExchange(new_swap, blocks)
-	c8 := indexer.SwapTokenExchange(new_swap, blocks)
+	var swapTokenExchangeChannels [128]<-chan contracts.NewSwapTokenExchange
+	for i := range swapTokenExchangeChannels {
+		swapTokenExchangeChannels[i] = indexer.SwapTokenExchange(new_swap, blocks)
+	}
 
-	// Consume the merged output from c1 and c2.
-	for n := range indexer.MergeSwapTokenExchange(c1, c2, c3, c4, c5, c6, c7, c8) {
+	for n := range indexer.MergeSwapTokenExchange(swapTokenExchangeChannels[:]...) {
 		fmt.Println(n.BoughtId.String())
 	}
 
+	elapsed := time.Since(start)
+	log.Printf("%d blocks took %s", 632161-629170, elapsed)
 }
