@@ -1,6 +1,7 @@
 package indexer
 
 import (
+	"log"
 	"sync"
 
 	"indexer/contracts"
@@ -20,9 +21,13 @@ func SwapTokenExchange(new_swap *contracts.NewSwap, blocks <-chan uint64) <-chan
 
 			event, _ := new_swap.FilterTokenExchange(&opts, []common.Address{})
 
+			log.Printf("block - %d", block)
+
 			for event.Next() {
 				out <- *event.Event
 			}
+
+			log.Printf("block - %d", block)
 		}
 		close(out)
 	}()

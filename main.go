@@ -45,9 +45,10 @@ func main() {
 	// 	fmt.Println(header.Number.String())
 	// }
 
-	blocks := generators.GenBlockRange(629170, 632161)
+	// blocks := generators.GenBlockRange(629170, 632161)
+	blocks := generators.GenBlockRange(560609, 632161)
 
-	var swapTokenExchangeChannels [128]<-chan contracts.NewSwapTokenExchange
+	var swapTokenExchangeChannels [256]<-chan contracts.NewSwapTokenExchange
 	for i := range swapTokenExchangeChannels {
 		swapTokenExchangeChannels[i] = indexer.SwapTokenExchange(new_swap, blocks)
 	}
@@ -57,5 +58,5 @@ func main() {
 	}
 
 	elapsed := time.Since(start)
-	log.Printf("%d blocks took %s", 632161-629170, elapsed)
+	log.Printf("%d blocks took %s", 632161-560609, elapsed)
 }
